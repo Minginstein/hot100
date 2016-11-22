@@ -19,7 +19,7 @@ The licensor cannot revoke these freedoms as long as you follow the license term
 
 Under the following terms:
 
-* **Attribution**—You must give appropriate credit (mentioning that your work is derived from work that is © Randal S. Olson and, where practical, linking to http://www.randalolson.com/), provide a [link to the license](https://creativecommons.org/licenses/by/4.0/), and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
+* **Attribution**—You must give appropriate credit (mentioning that your work is derived from work that is © David H. Roberts and, where practical, linking to https://github.com/Minginstein/hot100/), provide a [link to the license](https://creativecommons.org/licenses/by/4.0/), and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
 
 **No additional restrictions**—You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.
 
