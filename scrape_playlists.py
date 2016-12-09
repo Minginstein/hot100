@@ -13,20 +13,20 @@ import bbscrape
 from query_spotify import authorize_spotify
 from query_spotify import get_audio_features
 
-def main():
+def scrape_playlists():
     """
     Takes a integer formatted year, 
     Scrapes all hot 100 playlists until that year
     """
     
     # Billboard Scrape
-#    bb = bbscrape.BillBoard()
-#    bb.collect_all_lists(2016, 2016)
-#    bb.track_df.to_csv('hot100_track_df.csv')
+    bb = bbscrape.BillBoard()
+    bb.collect_all_lists(1958, 2016)
+    bb.track_df.to_csv('hot100_track_df.csv')
     
     bb = bbscrape.BillBoard()
     print("initialized")
-    bb.track_df = pandas.read_csv('hot100_track_df_2016.csv', encoding = "ISO-8859-1")
+    bb.track_df = pandas.read_csv('hot100_track_df.csv', encoding = "ISO-8859-1")
     
     # Spotify Query
     sp = authorize_spotify()
@@ -36,4 +36,4 @@ def main():
     bb.joined_df.to_csv('hot100_full_df.csv')
 
 if __name__ == "__main__":
-    main()
+    scrape_playlists()

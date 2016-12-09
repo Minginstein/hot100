@@ -11,6 +11,10 @@ from spotify_keys import spot_keys   # Import your own set of spotify keys!
 import spotipy
 from spotipy import util
 import pandas
+import numpy as np
+import os
+import traceback
+import time
 
 def authorize_spotify():
     """
@@ -45,3 +49,71 @@ def get_audio_features(spot_ids, spotipy_client = None):
     audio_features_df = pandas.DataFrame(full_list)
     
     return audio_features_df
+
+    
+"""
+SHOULD PICK UP TRACK AND ARTIST POPULARITY WHILE I'M AT IT
+"""    
+
+def get_artist_info(file_name, spotipy_client = None):
+    """
+    Takes a filename as string and an array of spotify track URI's
+    Queries Spotify API for artist ids
+    Returns dataframe with artist ID and popularity as well as track popularity
+    """
+    
+    # Importing csv with track URI's
+    cwd = os.getcwd()
+    file_path = cwd + "\\data\\" + file_name
+    
+    # Initialize dataframe
+    target_fields = ['track_id']
+    track_id = pandas.Series(pandas.read_csv(file_path, index_col = False, usecols = target_fields)['track_id'])
+    track_id = track_id.drop_duplicates()
+    track_id = track_id.dropna()
+    
+    artist = []
+    artist_id = []
+    for i in range(0, len(track_id), 50):
+        end_index = min(i+50, len(track_id))
+        
+        try:
+            tracks = spotipy_client.tracks(track_id[i:min(i+50, end_index)])['tracks']
+        except spotipy.SpotifyException:
+            time.sleep(90)
+
+        error_count = 0
+        for track in tracks:
+            try:
+                artist.append(track['artists'][0]['name'])
+                artist_id.append(track['artists'][0]['id'])
+            except:
+                traceback.print_last()
+                artist.append(np.NaN)
+                artist_id.append(np.NaN)
+                error_count += 1
+        
+        print ("Track Group: ", i, ", Error Count: ", error_count)
+        
+    for i, a in enumerate(artist):
+        artist[i] = a.encode('latin-1', 'ignore').decode('latin-1')
+        
+    assert len(artist) == len(artist_id), "Artist columns are not the same length"
+    assert len(artist) == len(track_id), "Artist column is not the same length as track_id column"
+      
+    cross_ref_df = pandas.DataFrame(track_id)  
+    artist = np.array(artist)
+    artist_id = np.array(artist_id)
+    
+    cross_ref_df['artist'] = artist
+    cross_ref_df['artist_id'] = artist_id
+    
+    return cross_ref_df
+    
+
+#%%
+
+sp = authorize_spotify()
+df = get_artist_info('hot100_track_df.csv', spotipy_client = sp)
+df.to_csv(os.getcwd() + "\\data\\artist_info.csv", encoding = "latin-1")
+

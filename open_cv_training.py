@@ -17,7 +17,6 @@ import numpy as np
 # Initializing Handwritten digit dataset
 dataset = datasets.fetch_mldata("MNIST Original")
 
-
 #%%
 # Creating feature and lable sets
 features = np.array(dataset.data, 'int16')

@@ -20,8 +20,8 @@ class BillBoard():
     
     def __init__(self):
         self.current_year = None
-        self.track_dataframe_row = {"chart_date": [], "id": [], "track_name": [], "artist": [],"current_week_rank": [], "last_week_rank": [], "weeks_on_chart": [], "peak_rank": []}
-        self.track_df = pandas.DataFrame(self.track_dataframe_row, columns = ['chart_date', 'id', 'track_name', 'artist', 'current_week_rank', 'last_week_rank', 'weeks_on_chart', 'peak_rank'])
+        self.track_dataframe_row = {"chart_date": [], "track_id": [], "track_name": [], "artist": [],"current_week_rank": [], "last_week_rank": [], "weeks_on_chart": [], "peak_rank": []}
+        self.track_df = pandas.DataFrame(self.track_dataframe_row, columns = ['chart_date', 'track_id', 'track_name', 'artist', 'current_week_rank', 'last_week_rank', 'weeks_on_chart', 'peak_rank'])
         self.audio_features_df = None
         self.joined_df = None        
         
@@ -56,20 +56,20 @@ class BillBoard():
         tracks = soup.findAll("article", class_ = "chart-row")
         
         # Initializing weekly track dataframe
-        track_dataframe_row = {"chart_date": [], "id": [], 
+        track_dataframe_row = {"chart_date": [], "track_id": [], 
                                "track_name": [], "artist": [],
                                "current_week_rank": [], "last_week_rank": [],
                                "weeks_on_chart": [], "peak_rank": []
                                }
         
-        track_df = pandas.DataFrame(track_dataframe_row, columns = ['chart_date', 'id', 'track_name', 'artist', 'current_week_rank', 'last_week_rank', 'weeks_on_chart', 'peak_rank'])
+        track_df = pandas.DataFrame(track_dataframe_row, columns = ['chart_date', 'track_id', 'track_name', 'artist', 'current_week_rank', 'last_week_rank', 'weeks_on_chart', 'peak_rank'])
         
         # Iterate through Hot 100 tracks, parsing table
         for track in tracks:
             row_dict = {}            
             
             row_dict['chart_date'] = [date]
-            row_dict['id'] = [track.get('data-spotifyid')]  
+            row_dict['track_id'] = [track.get('data-spotifyid')]  
             
             # Modfiy string for artist_name
             artist_string = track.h3
@@ -132,7 +132,7 @@ class BillBoard():
         """
         
         # Generating series of Spotify ids, no duplicates
-        spot_ids = self.track_df['id']
+        spot_ids = self.track_df['track_id']
         spot_ids = spot_ids.drop_duplicates()
         spot_ids = spot_ids.dropna()
         

@@ -21,7 +21,6 @@ def import_image_names(file_path):
     
     return [name for name in os.listdir(file_path) if ".png" in name]
  
- 
 class Transcriber():
     """
     Transcription class with methods to handle individual images
@@ -38,12 +37,27 @@ class Transcriber():
         
     def transcribe_image(self):
         """
-        Opens image, uses digit recognition to return int monthly_listeners value
+        Prepares image, uses digit recognition to return int monthly_listeners value
         """
+        self.prepare_image(contrast_enhancement = 3, contrast_threshold = 85)
         string = ts.image_to_string(self.processed_img, config = "--psm 7 digits")
-        self.monthly_listeners = string
+        
+#        if len(string) == 0:
+#            self.prepare_image(contrast_enhancement = 9, contrast_threshold = 30)
+#            string = ts.image_to_string(self.processed_img, config = "--psm 7 digits")
+#            
+##        if len(string) == 0:
+##            self.prepare_image(contrast_enhancement = 4, contrast_threshold = 50)
+##            string = ts.image_to_string(self.processed_img, config = "--psm 7 digits")
+#        
+        digits = [letter for letter in string if letter.isdigit()]
+        
+        if len(digits) > 0:
+            self.monthly_listeners = int("".join(digits))
+        else: 
+            self.monthly_listeners = np.NaN
 
-    def prepare_image(self):
+    def prepare_image(self, contrast_enhancement = 3, contrast_threshold = 85):
         """
         Crops and resizes the image. Inverts colors and applies high contrast
         """
@@ -54,7 +68,7 @@ class Transcriber():
         
         # scale the image up
         size = temp.size
-        new_size = (size[0]*10, size[1]*10)
+        new_size = (size[0]*15, size[1]*15)
         temp = temp.resize(new_size, Image.ANTIALIAS)
         
         # apply transformations to improve transcription accuracy
@@ -62,7 +76,18 @@ class Transcriber():
         temp = temp.convert('L')
         temp = ImageOps.invert(temp)
         contrast = ImageEnhance.Contrast(temp)
-        self.processed_img = contrast.enhance(3)
+        temp = contrast.enhance(contrast_enhancement)
+        
+        # turn all "non-black" pixels white
+        pixel_map = np.asarray(temp)
+        pixel_map.flags["WRITEABLE"] = True
+        pixel_map[pixel_map > contrast_threshold] = 255
+        
+        # expand right margin
+        rows, cols = pixel_map.shape
+        all_white_array = np.full((rows, 50), 255, dtype = np.uint8)
+        pixel_map_white_margin = np.concatenate((pixel_map, all_white_array), axis = 1)
+        self.processed_img = Image.fromarray(pixel_map_white_margin)
         
 def main():
     """
@@ -82,18 +107,26 @@ def main():
     dataframe = pd.DataFrame({'artist_ids': [file_name[0:len(file_name)-4] for file_name in target_images]})    
     dataframe['monthly_listeners'] = np.nan
     
-    for index, file in enumerate(target_images[0:30]):
+    error_indices = []
+    
+    for index, file in enumerate(target_images):
+        #if index not in [23,24,26]:continue
+        
         try:
             img = Image.open(target_dir + file)
             t = Transcriber(img, file)
-            t.prepare_image()
             t.transcribe_image()
-            t.monthly_listeners = int(t.monthly_listeners.replace(" ", ""))
             dataframe['monthly_listeners'][index] = t.monthly_listeners
+            t.processed_img.save(cwd + "/data/NN_training_examples/processed_imgs/" + file)
             
         except Exception as e:
+            error_indices.append((index, t.processed_img))
+            t.original_img.save(cwd + "/data/errors_test/" + str(index) + "_o.png")
+            t.processed_img.save(cwd + "/data/NN_training_examples/processed_imgs/errors/" + file)
             print(e)
             
-    dataframe.to_csv(cwd + "/data/monthly_listeners.csv")
+    dataframe.to_csv(cwd + "/data/NN_training_examples/tesseract_classifications.csv")
+    
+    return error_indices
             
-main()        
+errors = main()
