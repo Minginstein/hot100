@@ -12,8 +12,25 @@ import numpy as np
 import os
 
 def show_image(img):
+    """
+    Takes a cv2 image as numpy array, displays it with infinite waitkey
+    """
     cv2.imshow("Image", img)
     cv2.waitKey()
+    
+def generate_rects(img):
+    """
+    Takes a cv2.image object, generates bounding rectangles for major contours
+    Returns list of rectangels formatted as tuple x, y, w, h
+    """
+    assert type(img).__module__ == np.__name__, "Image must be formatted as numpy array"
+    
+    copy = img.copy()
+    copy = cv2.bitwise_not(copy)
+    # Get contours of image
+    src, ctrs, hier = cv2.findContours(img.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    bounding_boxes = [cv2.boundingRect(ctr) for ctr in ctrs]
+    return bounding_boxes
     
 def absorb_rect_below(rect1, rect2):
     """
@@ -61,21 +78,6 @@ def check_rect_height(rect, height_threshold = 123):
         return True
     else:
         return False
-
-# Load the input file
-cwd = os.getcwd().replace("\\", "/")
-clf = joblib.load(cwd + "/data/digits_cls.pkl")
-
-# Read input image
-im = cv2.imread(cwd + "/data/errors_test/24_p.png")
-im_gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
-im_inverted = cv2.bitwise_not(im_gray)
-
-# Get contours of image
-src, ctrs, hier = cv2.findContours(im_inverted.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
-# Draw rectangles around contour regions
-rects = [cv2.boundingRect(ctr) for ctr in ctrs]
 
 def process_rects(rects):
     """
@@ -125,8 +127,15 @@ def generate_digit_string(rects, image):
     
     return digits
     
-# draw the rectangles    
-#cv2.rectangle(im_inverted, (rect[0], rect[1]), 
-#          (rect[0] + rect[2], rect[1] + rect[3]), 
-#          70, 3)
-#show_image(im_inverted)
+#%% Load the input file
+#cwd = os.getcwd().replace("\\", "/")
+##clf = joblib.load(cwd + "/data/digits_cls.pkl")
+#
+## Read input image
+#
+#    
+#for rect in rects: 
+#    cv2.rectangle(im_inverted, (rect[0], rect[1]), 
+#              (rect[0] + rect[2], rect[1] + rect[3]), 
+#              70, 3)
+#    show_image(im_inverted)

@@ -21,7 +21,8 @@ Design sketch
 import pandas as pd
 import numpy as np
 import os
-from PIL import Image, ImageTk
+from PIL import Image
+import cv2
 from collections import deque
 
 # constants
@@ -51,12 +52,20 @@ class Train():
     def import_image_names(self):
         self.image_names =  [name for name in os.listdir(self.PNG_DIR) if ".png" in name]
         
-    def get_image(self, img_id):
+    def get_image(self, img_id, mode = "PIL"):
+        """
+        Loads image given img_id in either PIL or cv2 format
+        """
         assert type(img_id) is str, "image_id must be a string"
-
-        self.current_img_id = img_id
-        self.current_img = Image.open(self.PNG_DIR + img_id + ".png")
         
+        self.current_img_id = img_id
+        
+        if mode == "PIL":
+            self.current_img = Image.open(self.PNG_DIR + img_id + ".png")
+        elif mode == "OpenCV" or "opencv":
+            img = cv2.imread(self.PNG_DIR + img_id + ".png", cv2.IMREAD_GRAYSCALE)
+            self.current_img = img
+            
         if self.current_img is None:
             print(img_id + " was not loaded correctly")
             self.current_img = None
@@ -75,6 +84,17 @@ class Train():
         elif np.isnan(val):
             self.current_stat = ""
             
+    def get_correct_label(self, img_id):
+        assert type(img_id) is str, "image_id must be a string"
+        assert self.df is not None, "dataframe not yet initialized"
+        
+        val = self.df.loc[img_id, 'correct_label']
+
+        if not np.isnan(val):
+            self.current_label = int(val)
+        elif np.isnan(val):
+            self.current_label = ""
+        
     def initialize_training_queue(self):
         """
         Stores list dataframe rows without verified labels

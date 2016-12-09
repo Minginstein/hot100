@@ -17,7 +17,7 @@ Training GUI
 
 import tkinter as tk
 from training_gui_backend import *
-import random
+from PIL import ImageTk
 
 class TrainingGUI(tk.Frame):
     """
