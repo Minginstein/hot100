@@ -15,7 +15,7 @@ import cv2
 import PIL
 
 # local imports
-from open_cv_classify import generate_rects, process_rects, show_image
+from open_cv_classify import generate_rects, process_rects, process_cv2_image, show_image, show_rects
 from training_gui_backend import Train
 
 # constants
@@ -35,18 +35,7 @@ def import_labeled_data():
     t.df.dropna(subset = ['correct_label'], inplace = True)
                 
     return t
-    
-def process_cv2_image(img):
-    assert type(img).__module__ == np.__name__, "Image must be represented as numpy array"
-    
-    # convert to black_background
-    img = cv2.bitwise_not(img)
-    
-    bounding_boxes = generate_rects(img)
-    bounding_boxes = process_rects(bounding_boxes)
-    
-    return bounding_boxes
-    
+       
     
 def reshape_image(img, shape = DIGIT_IMAGE_SHAPE):
     """
@@ -73,82 +62,46 @@ def gen_digits_training_data():
     Saves data file
     """
     
-    t = import_labeled_data()
+    t = import_labeled_data()      
     
-    single_digits_arr = []
-    for number in np.asarray(t.df['correct_label'].iloc[0:20]):
-        single_digits_arr.extend(list(str(int(number))))
+    dataset = {'INFO': "Monthly Listeners Data", 
+                'label': [],
+                'image': np.empty((0, DIGIT_IMAGE_SIZE), dtype = np.int32)}
+    
+    errors = {'artist_id':[], 'label':[], 'rects':[]}
+              
+    int_index = 0
+    for index, row in t.df.iterrows():
+        print("Row {}".format(int_index))
         
-
-    
-    dataset = {'INFO': "BLAH BLAH BLAH", 
-                'labels': np.asarray(single_digits_arr),
-                'images': np.empty((0, DIGIT_IMAGE_SIZE), dtype = np.int32)}
-                
-    for index, row in t.df.iloc[0:20].iterrows():
         t.get_image(index, mode = 'open_cv')
         rects = process_cv2_image(t.current_img)
         digits = [t.current_img[rect[1]:rect[1] + rect[3], rect[0]:rect[0] + rect[2]] for rect in rects]
         
-        for digit in digits:
-            row_vector = reshape_image(digit)
-            dataset['images'] = np.append(dataset['images'], row_vector, axis=0)
+        label = list(str(int(row['correct_label'])))
+        
+        if len(rects) != len(label):
+            errors['artist_id'].append(index)
+        elif len(rects) == len(label):
+            for digit in digits:
+                row_vector = reshape_image(digit)
+                dataset['image'] = np.append(dataset['image'], row_vector, axis=0)
+            dataset['label'].extend(label)
+        
+        int_index += 1
+    
+    dataset['label'] = np.asarray(dataset['label'])
             
-#    assert len(dataset['labels']) == len(dataset['images']), "dataset must have one label for each row"
+    assert len(dataset['label']) == len(dataset['image']), "dataset must have one label for each row"
+    
+   
+
+    return dataset, errors
         
-    return dataset
-        
-        
-        
-
-    
-    
-    
-
-
-#==============================================================================
-# from PIL import Image
-# img = Image.open('/pathto/file', 'r')
-# img_w, img_h = img.size
-# background = Image.new('RGBA', (1440, 900), (255, 255, 255, 255))
-# bg_w, bg_h = background.size
-# offset = ((bg_w - img_w) / 2, (bg_h - img_h) / 2)
-# background.paste(img, offset)
-# background.save('out.png')
-#     
-#     
-#==============================================================================
-    
-    
-    
-
-def show_rects(image, rects):
-    for rect in rects:
-        cv2.rectangle(image, (rect[0], rect[1]), 
-              (rect[0] + rect[2], rect[1] + rect[3]), 
-              70, 3)
-
-    cv2.imshow("digit", image)
-    cv2.waitKey()
-
+d, errors = gen_digits_training_data()
 
 #%%
-t = Train()
-t.import_csv()
-t.get_image(t.df.iloc[0].name, mode = "opencv")
-im = t.current_img
+from sklearn.externals import joblib
 
-#%%
-
-rects = process_cv2_image(im)
-rect = rects[0]
-
-digits = [im[rect[1]:rect[1] + rect[3], rect[0]:rect[0] + rect[2]] for rect in rects]
-
-#for digit in digits:
-#    show_image(digit)
-
-im2 = cv2.imread(os.getcwd().replace("\\", "/") + "/data/errors_test/24_p.png")
-im2 = cv2.cvtColor(im2, cv2.COLOR_BGR2GRAY)
-
-rects0 = process_cv2_image(im2)
+cwd = os.getcwd().replace("\\", "/")
+joblib.dump(d, cwd + "/data/digits_dictionary.pkl", compress=3)     

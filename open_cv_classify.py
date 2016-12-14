@@ -11,6 +11,15 @@ from skimage.feature import hog
 import numpy as np
 import os
 
+def show_rects(image, rects):
+    for rect in rects:
+        cv2.rectangle(image, (rect[0], rect[1]), 
+              (rect[0] + rect[2], rect[1] + rect[3]), 
+              70, 3)
+
+    cv2.imshow("digit", image)
+    cv2.waitKey()
+
 def show_image(img):
     """
     Takes a cv2 image as numpy array, displays it with infinite waitkey
@@ -18,17 +27,30 @@ def show_image(img):
     cv2.imshow("Image", img)
     cv2.waitKey()
     
+def process_cv2_image(img):
+    assert type(img).__module__ == np.__name__, "Image must be represented as numpy array"
+    
+    # convert to black_background
+    
+    inverted_copy = invert_colors(img)
+    bounding_boxes = generate_rects(inverted_copy)
+    bounding_boxes = process_rects(bounding_boxes)
+    
+    return bounding_boxes
+    
+def invert_colors(img):
+    copy = img.copy()
+    return cv2.bitwise_not(copy)
+    
 def generate_rects(img):
     """
     Takes a cv2.image object, generates bounding rectangles for major contours
     Returns list of rectangels formatted as tuple x, y, w, h
     """
     assert type(img).__module__ == np.__name__, "Image must be formatted as numpy array"
-    
-    copy = img.copy()
-    copy = cv2.bitwise_not(copy)
+
     # Get contours of image
-    src, ctrs, hier = cv2.findContours(img.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    src, ctrs, hier = cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     bounding_boxes = [cv2.boundingRect(ctr) for ctr in ctrs]
     return bounding_boxes
     
@@ -44,14 +66,14 @@ def absorb_rect_below(rect1, rect2):
     ratio = float(rect1[2]) / rect2[2]
     scale_benchmark = max(rect1[2], rect2[2])
 
-    if not .85 <= ratio <= 1.15:
+    if not .50 <= ratio <= 1.50:
         return False
        
     # establish that the rectangles are vertically aligned
-    x_diff_top_right = abs(rect1[0] - rect2[0])
-    x_diff_top_left = abs((rect1[0] + rect1[2]) - (rect2[0] + rect2[2]))    
+    x_diff_top_right = abs(min(rect1[0] - rect2[0], rect2[0] - rect1[0]))
+    x_diff_top_left = abs(min((rect1[0] + rect1[2]) - (rect2[0] + rect2[2]), (rect2[0] + rect2[2]) - (rect1[0] + rect1[2])))    
     
-    if x_diff_top_right / float(scale_benchmark) > .05 or x_diff_top_left / float(scale_benchmark) > .05: 
+    if x_diff_top_right / float(scale_benchmark) > .30 or x_diff_top_left / float(scale_benchmark) > .30: 
         return False
     
     # largest rectangle absorbs the smaller
@@ -74,7 +96,7 @@ def check_rect_height(rect, height_threshold = 123):
     assert len(rect) == 4, "Rectangle is not in the required format (x, y, w, h)"
     
     height = rect[3]
-    if .95 <= float(height) / height_threshold <= 1.05:
+    if .90 <= float(height) / height_threshold <= 1.10:
         return True
     else:
         return False
@@ -83,6 +105,10 @@ def process_rects(rects):
     """
     Consolidates vertically aligned rectangles
     Removes rectangles with non-relevant dimensions
+    
+    ERROR analysis:
+    This does not update the rects throughout the process, could lead to errors if three rects are being combined
+    
     """
     if len(rects) == 0:
         return None
@@ -126,16 +152,3 @@ def generate_digit_string(rects, image):
         digits.append(nbr[0])
     
     return digits
-    
-#%% Load the input file
-#cwd = os.getcwd().replace("\\", "/")
-##clf = joblib.load(cwd + "/data/digits_cls.pkl")
-#
-## Read input image
-#
-#    
-#for rect in rects: 
-#    cv2.rectangle(im_inverted, (rect[0], rect[1]), 
-#              (rect[0] + rect[2], rect[1] + rect[3]), 
-#              70, 3)
-#    show_image(im_inverted)
