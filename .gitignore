@@ -7,6 +7,9 @@ one_off_scripts/
 data_collection/spotify_api/spotify_keys.py
 data_collection/spotify_desktop.sikuli/local_dirs*
 
+# "not ready" files
+data_collection/model_optimization.ipynb
+
 # Best practices
 # Compiled source #
 ###################
