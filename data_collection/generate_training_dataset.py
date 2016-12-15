@@ -2,7 +2,7 @@
 """
 Created on Fri Dec  9 10:18:34 2016
 
-Convert images to numpy array dataset 
+Converts monthly listeners images from Spotify Desktop Client to a suitable format for training neural networks
 
 @author: David Roberts
 """
@@ -10,18 +10,13 @@ Convert images to numpy array dataset
 # library imports
 import os 
 import numpy as np
-import pandas as pd
-import cv2
 import PIL
 
 # local imports
-from open_cv_classify import generate_rects, process_rects, process_cv2_image, show_image, show_rects
+from contour_recognition import generate_rects, process_rects, process_cv2_image, show_image, show_rects
 from training_gui_backend import Train
 
 # constants
-#CWD = os.getcwd().replace("\\", "/")
-#TARGET_CSV = CWD + "/data/NN_training_examples/tesseract_classifications.csv"
-#PNG_DIR = CWD + "/data/NN_training_examples/processed_imgs/"
 DIGIT_IMAGE_SHAPE = (150,95)   # all images of individual digits will be reformatted to this size
 DIGIT_IMAGE_SIZE = 150*95
 
@@ -63,7 +58,7 @@ def gen_digits_training_data():
     
     t = import_labeled_data()      
     
-    dataset = {"INFO": {'source': 'Images extracted as part of hot100 from Spotify Desktop client', 'font': 'unknown :)', 'transformations': 'digits were extracted using contour analysis. They were then converted to grayscale, sharpened, inverted, contrasted to white/black and placed on a uniform white background', 'description': 'labels consists of 8024 digit labels. image array consists of 8024 rows representing 150 x 95 pixel images, flattened to fit in one row'}, 
+    dataset = {"INFO": {'source': 'Images extracted as part of hot100 from Spotify Desktop client', 'font': 'unknown :)', 'transformations': 'digits were extracted using contour analysis. They were then converted to grayscale, sharpened, inverted, contrasted to white/black and placed on a uniform white background', 'descriptions': {'columns': 'labels consists of 8024 digit labels. image array consists of 8024 rows of flattened pixel vectors (one image per row', 'image_shape': DIGIT_IMAGE_SHAPE, 'num_pixels': DIGIT_IMAGE_SIZE}}, 
                 'label': [],
                 'image': np.empty((0, DIGIT_IMAGE_SIZE), dtype = np.uint8)}
     
@@ -91,13 +86,10 @@ def gen_digits_training_data():
     
     dataset['label'] = np.asarray(dataset['label'])
             
-    assert len(dataset['label']) == len(dataset['image']), "dataset must have one label for each row"
-    
-   
+    assert len(dataset['label']) == len(dataset['image']), "dataset must have one label for each row"  
 
     return dataset, errors
-
-    
+   
 if __name__ == '__main__':
     data, errors = gen_digits_training_data()
     import pickle

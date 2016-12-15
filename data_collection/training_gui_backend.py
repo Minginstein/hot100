@@ -7,16 +7,6 @@ Functions for generating and labeling training data
 @author: David Roberts
 """
 
-"""
-Design sketch
-
-    1. takes csv with Tesseract monthly listeners 
-    2. isolates digits using cv2
-    3. incorporates GUI funcitonality to confirm the label or input new label
-    4. standardizes the digit image size, saves to numpy array (same format as MNSIT)
-
-"""
-
 # library imports
 import pandas as pd
 import numpy as np

@@ -7,14 +7,6 @@ Training GUI - Object Oriented Approach
 @author: David Roberts
 """
 
-"""
-Created on Wed Dec  7 20:15:38 2016
-
-Training GUI
-
-@author: David Roberts
-"""
-
 import tkinter as tk
 from training_gui_backend import *
 from PIL import ImageTk

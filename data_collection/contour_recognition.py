@@ -6,10 +6,7 @@ Created on Tue Dec  6 15:24:51 2016
 """
 
 import cv2
-from sklearn.externals import joblib
-from skimage.feature import hog
 import numpy as np
-import os
 
 def show_rects(image, rects):
     for rect in rects:
@@ -108,7 +105,6 @@ def process_rects(rects):
     
     ERROR analysis:
     This does not update the rects throughout the process, could lead to errors if three rects are being combined
-    
     """
     if len(rects) == 0:
         return None
@@ -135,20 +131,22 @@ def process_rects(rects):
     
     return rects
 
-#rects = process_rects(rects)
-def generate_digit_string(rects, image):
-    digits = []
-    for rect in rects:
-      
-        # resize rectangles to squares
-        bounding_box = image[rect[1]:rect[1] + rect[3], rect[0]:rect[0] + rect[2]]
-        bounding_box = cv2.resize(bounding_box, (28,28), interpolation = cv2.INTER_AREA)
-        bounding_box = cv2.dilate(bounding_box, (3,3))
-        
-        # extract hod features from bounding box
-        roi_hog_fd = hog(bounding_box, orientations=9, pixels_per_cell=(14, 14), cells_per_block=(1, 1), visualise=False)
-        nbr = clf.predict(np.array([roi_hog_fd], 'float64'))
-        
-        digits.append(nbr[0])
-    
-    return digits
+#==============================================================================
+# #rects = process_rects(rects)
+# def generate_digit_string_DEPRECATED(rects, image):
+#     digits = []
+#     for rect in rects:
+#       
+#         # resize rectangles to squares
+#         bounding_box = image[rect[1]:rect[1] + rect[3], rect[0]:rect[0] + rect[2]]
+#         bounding_box = cv2.resize(bounding_box, (28,28), interpolation = cv2.INTER_AREA)
+#         bounding_box = cv2.dilate(bounding_box, (3,3))
+#         
+#         # extract hod features from bounding box
+#         roi_hog_fd = hog(bounding_box, orientations=9, pixels_per_cell=(14, 14), cells_per_block=(1, 1), visualise=False)
+#         nbr = clf.predict(np.array([roi_hog_fd], 'float64'))
+#         
+#         digits.append(nbr[0])
+#     
+#     return digits
+#==============================================================================

@@ -32,24 +32,13 @@ class Transcriber():
         self.original_img = img
         self.processed_img = None
         
-    def __str__(self):
-        pass
-        
     def transcribe_image(self):
         """
         Prepares image, uses digit recognition to return int monthly_listeners value
         """
         self.prepare_image(contrast_enhancement = 3, contrast_threshold = 85)
         string = ts.image_to_string(self.processed_img, config = "--psm 7 digits")
-        
-#        if len(string) == 0:
-#            self.prepare_image(contrast_enhancement = 9, contrast_threshold = 30)
-#            string = ts.image_to_string(self.processed_img, config = "--psm 7 digits")
-#            
-##        if len(string) == 0:
-##            self.prepare_image(contrast_enhancement = 4, contrast_threshold = 50)
-##            string = ts.image_to_string(self.processed_img, config = "--psm 7 digits")
-#        
+
         digits = [letter for letter in string if letter.isdigit()]
         
         if len(digits) > 0:
@@ -128,5 +117,3 @@ def main():
     dataframe.to_csv(cwd + "/data/NN_training_examples/tesseract_classifications.csv")
     
     return error_indices
-            
-errors = main()

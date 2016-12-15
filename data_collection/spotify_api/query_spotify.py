@@ -112,8 +112,9 @@ def get_artist_info(file_name, spotipy_client = None):
     
 
 #%%
-
-sp = authorize_spotify()
-df = get_artist_info('hot100_track_df.csv', spotipy_client = sp)
-df.to_csv(os.getcwd() + "\\data\\artist_info.csv", encoding = "latin-1")
-
+#==============================================================================
+# 
+# sp = authorize_spotify()
+# df = get_artist_info('hot100_track_df.csv', spotipy_client = sp)
+# df.to_csv(os.getcwd() + "\\data\\artist_info.csv", encoding = "latin-1")
+#==============================================================================

@@ -30,7 +30,7 @@ def load_data(file_name = CWD + "/data/NN_training_examples/digit_dictionary.pkl
     
 def rescale_images(flattened_image_matrix, scaling_factor= .50):
     """
-    given pictures digit training data, rescales the images to reduce memory burden later on
+    given matrix of flattented pixel vectors, resizes 
     """
     
     new_shape = (int(ORIGINAL_SIZE[0]*scaling_factor), int(ORIGINAL_SIZE[1]*scaling_factor))
@@ -42,9 +42,9 @@ def rescale_images(flattened_image_matrix, scaling_factor= .50):
         image = row.reshape(ORIGINAL_SIZE)  # note this should be parameterized by a master variable script
         new_image = cv2.resize(image, new_shape[::-1])
         new_flattened_row = new_image.reshape((1, new_size))
-        new_array = np.append(new_array, new_flattened_row, axis = 0)
+        new_matrix = np.append(new_array, new_flattened_row, axis = 0)
         
-    return new_array
+    return new_matrix
       
 # defining a simple CNN with only one hidden layer as baseline
 def baseline_model(num_pixels, num_classes):
