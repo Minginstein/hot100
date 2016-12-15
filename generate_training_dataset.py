@@ -36,7 +36,6 @@ def import_labeled_data():
                 
     return t
        
-    
 def reshape_image(img, shape = DIGIT_IMAGE_SHAPE):
     """
     Takes a black and white image represented as numpy array, must be smaller than shape tuple
@@ -64,9 +63,9 @@ def gen_digits_training_data():
     
     t = import_labeled_data()      
     
-    dataset = {'INFO': "Monthly Listeners Data", 
+    dataset = {"INFO": {'source': 'Images extracted as part of hot100 from Spotify Desktop client', 'font': 'unknown :)', 'transformations': 'digits were extracted using contour analysis. They were then converted to grayscale, sharpened, inverted, contrasted to white/black and placed on a uniform white background', 'description': 'labels consists of 8024 digit labels. image array consists of 8024 rows representing 150 x 95 pixel images, flattened to fit in one row'}, 
                 'label': [],
-                'image': np.empty((0, DIGIT_IMAGE_SIZE), dtype = np.int32)}
+                'image': np.empty((0, DIGIT_IMAGE_SIZE), dtype = np.uint8)}
     
     errors = {'artist_id':[], 'label':[], 'rects':[]}
               
@@ -97,11 +96,10 @@ def gen_digits_training_data():
    
 
     return dataset, errors
-        
-d, errors = gen_digits_training_data()
 
-#%%
-from sklearn.externals import joblib
-
-cwd = os.getcwd().replace("\\", "/")
-joblib.dump(d, cwd + "/data/digits_dictionary.pkl", compress=3)     
+    
+if __name__ == '__main__':
+    data, errors = gen_digits_training_data()
+    import pickle
+    cwd = os.getcwd().replace("\\", "/")
+    pickle.dump(data, open(cwd + "/data/NN_training_examples/digit_dictionary.pkl", mode = "wb"))
