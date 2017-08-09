@@ -112,7 +112,7 @@ Training a baseline model
 """
 
 model = baseline_model(num_pixels, 10)
-model.fit(X_train, y_train, validation_data = (X_val, y_val), nb_epoch = 5, batch_size = 200, verbose = 2, image_dim_ordering = 'tf')
+model.fit(X_train, y_train, validation_data = (X_val, y_val), nb_epoch = 5, batch_size = 200, verbose = 2)
 
 # 8:37 start time, 8:41 finish\
 scores = model.evaluate(X_val, y_val, verbose=0)
@@ -128,7 +128,7 @@ Baseline Error: .19%
 """
 
 """
-Scaled at 30% 
+   at 30% 
 Baseline Error: .12%
 """
 
@@ -159,3 +159,8 @@ print("Baseline Error: %.2f%%" % (100-scores[1]*100))
 Seems to me that the error could likely be chalked up to labeling errors on my part
 The regularization probably caused a decreases in accuracy over the basic model.
 """
+#%% Saving the models
+import os
+CWD = os.getcwd().replace("\\", "/")
+model.save(CWD + "/models/basic_NN.h5")
+CNN_basic.save(CWD + "/models/CNN.h5")
