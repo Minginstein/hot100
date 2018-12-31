@@ -1,0 +1,11 @@
+# Spotify Web API Connection Info
+spotify client id:
+spotify user id:
+redirect url:
+
+# Spotify Web Player Conneciton Info
+username:
+password:
+
+# Database parameters
+db dialect: sqlite

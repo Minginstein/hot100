@@ -1,6 +1,9 @@
 # subdirectories
 __pycache__/
 
+# Local configuration
+config.yaml
+
 # Best practices
 # Compiled source #
 ###################
