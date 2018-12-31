@@ -3,6 +3,10 @@ Functions dedicated to extraction of data from the following sources:
 1. Billboard Hot 100 Archives - http://www.billboard.com/archive/
 2. Spotify Web API
 3. Spotify Web Player
+
+ToDo:
+    - Refactor BillBoard object, no need for pandas. Use futures processing if possible
+    - Refactor Spotify collection scripts, insert to database
 """
 
 import requests
@@ -22,7 +26,7 @@ class BillBoard:
     
     def __init__(self):
         self.current_year = None
-        self.track_dataframe_row = {"chart_date": [], "track_id": [], "track_name": [], "artist": [],"current_week_rank": [], "last_week_rank": [], "weeks_on_chart": [], "peak_rank": []}
+        self.track_dataframe_row = {"chart_date": [], "track_id": [], "track_name": [], "artist": [], "current_week_rank": [], "last_week_rank": [], "weeks_on_chart": [], "peak_rank": []}
         self.track_df = pandas.DataFrame(self.track_dataframe_row, columns = ['chart_date', 'track_id', 'track_name', 'artist', 'current_week_rank', 'last_week_rank', 'weeks_on_chart', 'peak_rank'])
         self.audio_features_df = None
         self.joined_df = None        
@@ -257,6 +261,7 @@ def scrape_playlists():
     bb.audio_features_df = get_audio_features(bb.spot_ids, sp)
     bb.merge_dataframes()
     bb.joined_df.to_csv('hot100_full_df.csv')
+
 
 if __name__ == "__main__":
     scrape_playlists()

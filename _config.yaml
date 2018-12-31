@@ -9,3 +9,6 @@ password:
 
 # Database parameters
 db dialect: sqlite
+
+# Process parameters
+poolsize:

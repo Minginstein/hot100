@@ -15,7 +15,7 @@ based approach to transcription.
  
 ## Core Learnings
 ### Automation Is Fragile
-If a company does not want you to see something, don't attempt to automate it's retrieval :) When I started the project, 
+If a company does not want you to see something, don't attempt to automate its retrieval :) When I started the project, 
 I was very focused on the "monthly listeners" stat which Spotify does not expose via the web API. It's a supremely interesting
 metric, one which I used in a previous job. Until recently this stat was only available in .png via the Spotify Desktop 
 application. I was able to cobble something together to extract it using GUI Automation (Sikuli) and OCR. _But is it really 

@@ -5,7 +5,8 @@ Currently using SQLite dialect, but SQLAlchemy will allow simple scaling if it b
 """
 
 
-from sqlalchemy import Table, Column, Integer, String, MetaData, ForeignKey, Date, Float, create_engine
+from sqlalchemy import Table, Column, Integer, String, MetaData, ForeignKey, Date, Float, Boolean,\
+    create_engine
 import os
 
 
@@ -22,6 +23,7 @@ def create_db(db_engine, overwrite=False):
     metadata = MetaData()
     artists = Table('Artist', metadata,
         Column('ArtistID', String, primary_key=True),
+        Column('OnSpotify', Boolean),
         Column('Name', String),
         Column('Genres', String)
     )
