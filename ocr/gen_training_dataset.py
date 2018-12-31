@@ -59,10 +59,10 @@ def gen_digits_training_data():
     t = import_labeled_data()      
     
     dataset = {"INFO": {'source': 'Images extracted as part of hot100 from Spotify Desktop client', 'font': 'unknown :)', 'transformations': 'digits were extracted using contour analysis. They were then converted to grayscale, sharpened, inverted, contrasted to white/black and placed on a uniform white background', 'descriptions': {'columns': 'labels consists of 8024 digit labels. image array consists of 8024 rows of flattened pixel vectors (one image per row', 'image_shape': DIGIT_IMAGE_SHAPE, 'num_pixels': DIGIT_IMAGE_SIZE}}, 
-                'label': [],
+                'ocr': [],
                 'image': np.empty((0, DIGIT_IMAGE_SIZE), dtype = np.uint8)}
     
-    errors = {'artist_id':[], 'label':[], 'rects':[]}
+    errors = {'artist_id':[], 'ocr':[], 'rects':[]}
               
     int_index = 0
     for index, row in t.df.iterrows():
@@ -80,13 +80,13 @@ def gen_digits_training_data():
             for digit in digits:
                 row_vector = reshape_image(digit)
                 dataset['image'] = np.append(dataset['image'], row_vector, axis=0)
-            dataset['label'].extend(label)
+            dataset['ocr'].extend(label)
         
         int_index += 1
     
-    dataset['label'] = np.asarray(dataset['label'])
+    dataset['ocr'] = np.asarray(dataset['ocr'])
             
-    assert len(dataset['label']) == len(dataset['image']), "dataset must have one label for each row"  
+    assert len(dataset['ocr']) == len(dataset['image']), "dataset must have one ocr for each row"
 
     return dataset, errors
    

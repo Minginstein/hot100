@@ -8,6 +8,7 @@ Created on Tue Dec  6 15:24:51 2016
 import cv2
 import numpy as np
 
+
 def show_rects(image, rects):
     for rect in rects:
         cv2.rectangle(image, (rect[0], rect[1]), 
@@ -17,13 +18,15 @@ def show_rects(image, rects):
     cv2.imshow("digit", image)
     cv2.waitKey()
 
+
 def show_image(img):
     """
     Takes a cv2 image as numpy array, displays it with infinite waitkey
     """
     cv2.imshow("Image", img)
     cv2.waitKey()
-    
+
+
 def process_cv2_image(img):
     assert type(img).__module__ == np.__name__, "Image must be represented as numpy array"
     
@@ -34,11 +37,13 @@ def process_cv2_image(img):
     bounding_boxes = process_rects(bounding_boxes)
     
     return bounding_boxes
-    
+
+
 def invert_colors(img):
     copy = img.copy()
     return cv2.bitwise_not(copy)
-    
+
+
 def generate_rects(img):
     """
     Takes a cv2.image object, generates bounding rectangles for major contours
@@ -50,7 +55,8 @@ def generate_rects(img):
     src, ctrs, hier = cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     bounding_boxes = [cv2.boundingRect(ctr) for ctr in ctrs]
     return bounding_boxes
-    
+
+
 def absorb_rect_below(rect1, rect2):
     """
     Given a set of rectangle tuples, combines rectangles that are in veritical alignment
@@ -82,7 +88,8 @@ def absorb_rect_below(rect1, rect2):
     combined_rect = (min(x_coords), min(y_coords), max(widths), max_y_pos - min(y_coords))
     
     return combined_rect
-    
+
+
 def check_rect_height(rect, height_threshold = 123):
     """
     Takes a rectangle and height threshold
@@ -97,6 +104,7 @@ def check_rect_height(rect, height_threshold = 123):
         return True
     else:
         return False
+
 
 def process_rects(rects):
     """
@@ -131,22 +139,3 @@ def process_rects(rects):
     
     return rects
 
-#==============================================================================
-# #rects = process_rects(rects)
-# def generate_digit_string_DEPRECATED(rects, image):
-#     digits = []
-#     for rect in rects:
-#       
-#         # resize rectangles to squares
-#         bounding_box = image[rect[1]:rect[1] + rect[3], rect[0]:rect[0] + rect[2]]
-#         bounding_box = cv2.resize(bounding_box, (28,28), interpolation = cv2.INTER_AREA)
-#         bounding_box = cv2.dilate(bounding_box, (3,3))
-#         
-#         # extract hod features from bounding box
-#         roi_hog_fd = hog(bounding_box, orientations=9, pixels_per_cell=(14, 14), cells_per_block=(1, 1), visualise=False)
-#         nbr = clf.predict(np.array([roi_hog_fd], 'float64'))
-#         
-#         digits.append(nbr[0])
-#     
-#     return digits
-#==============================================================================

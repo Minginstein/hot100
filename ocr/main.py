@@ -12,13 +12,13 @@ SKETCH:
     1. cycles through all images in monthly_listeners folder, generating processed versions
     2. program image class with methods to return classified text from image
     3. cycle through all images, generating csv
-    4. grab popularity by artist using spotify web api
 """
 
-from tess_transcribe import Transcriber, import_image_names
+from transcribe import Transcriber, import_image_names
 from keras.models import load_model
 from PIL import Image
 import os
+
 
 TARGET_DATE = "2016-11-27"
 CWD = os.getcwd().replace("\\", "/")

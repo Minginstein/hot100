@@ -13,6 +13,7 @@ import os
 import pandas as pd
 import numpy as np
 
+
 def import_image_names(file_path):
     """
     Imports image file names from specified directory
@@ -20,7 +21,8 @@ def import_image_names(file_path):
     """
     
     return [name for name in os.listdir(file_path) if ".png" in name]
- 
+
+
 class Transcriber():
     """
     Transcription class with methods to handle individual images

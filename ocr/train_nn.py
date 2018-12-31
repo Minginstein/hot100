@@ -21,13 +21,15 @@ import os
 import cv2
 
 # load data from pickel file
-CWD = os.getcwd().replace("\\", "/")
+CWD = os.getcwd()
 ORIGINAL_SIZE = (150,95)
+
 
 def load_data(file_name = CWD + "/data/NN_training_examples/digit_dictionary.pkl"):
     data_dictionary = pickle.load(open(file_name, mode = "rb"))
     return data_dictionary
-    
+
+
 def rescale_images(flattened_image_matrix, scaling_factor= .50):
     """
     given matrix of flattented pixel vectors, resizes 
@@ -45,7 +47,8 @@ def rescale_images(flattened_image_matrix, scaling_factor= .50):
         new_matrix = np.append(new_matrix, new_flattened_row, axis = 0)
         
     return new_matrix
-      
+
+
 # defining a simple CNN with only one hidden layer as baseline
 def baseline_model(num_pixels, num_classes):
     # Construct 3 layer sequential model
@@ -58,7 +61,8 @@ def baseline_model(num_pixels, num_classes):
     # compile the model - train using Adam gradient descent method
     model.compile(optimizer = 'adam', loss = 'categorical_crossentropy', metrics = ['accuracy'])
     return model
-    
+
+
 def CNN_model_basic(num_classes, image_shape):
     """
     Constructs a 6 layer convolutional neural network with the following layers:
@@ -95,15 +99,15 @@ IMAGE_SHAPE = (45, 28)
 
 #%%
 dataset['image'] = dataset['image'] / 255
-dataset['label'] = dataset['label'].astype(np.int)
-dataset['label'] = np_utils.to_categorical(dataset['label'])
+dataset['ocr'] = dataset['ocr'].astype(np.int)
+dataset['ocr'] = np_utils.to_categorical(dataset['ocr'])
 
 #%%
-sep = (dataset['label'].shape[0] // 5) * 4
+sep = (dataset['ocr'].shape[0] // 5) * 4
 X_train = dataset['image'][0:sep]
 X_val = dataset['image'][sep:]
-y_train = dataset['label'][0:sep]
-y_val = dataset['label'][sep:]
+y_train = dataset['ocr'][0:sep]
+y_val = dataset['ocr'][sep:]
 num_pixels = dataset['image'].shape[1]
 
 #%%
