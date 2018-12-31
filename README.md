@@ -1,7 +1,7 @@
-# Hot100: An Analysis of Billboard's Hot 100 since 1958
+# hot100: An Analysis of Billboard's Hot 100 since 1958
 
-## Overview:
-This repository contains data collection functions, sample data files, as well as Jupyter notebooks outlining data analysis techniques.
+## Purpose:
+Explore Python based data pipeline and analysis libraries via an interesting domain. 
 
 ## Contents
 * ocr (Deprecated): Contains modules dedicated to collection of "monthly listeners" data point in .png format. I used Sikuli, Tesseract, a CNN
