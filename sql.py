@@ -67,7 +67,7 @@ def create_db(db_engine, overwrite=False):
         Column('Popularity', Integer)
     )
 
-    if db_engine.driver == 'pysqlite' and not os.path.exists('hot100.sqlite'):
+    if db_engine.driver == 'pysqlite' and (overwrite or not os.path.exists('hot100.sqlite')):
         metadata.create_all(db_engine)
 
 
