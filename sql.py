@@ -30,7 +30,7 @@ def create_db(db_engine, overwrite=False):
     )
 
     artist_spot_fact_table = Table('ArtistSpotifyFact', metadata,
-        Column('ArtistID', String, ForeignKey("Artist.ArtistID"), nullable=False),
+        Column('ArtistID', String, ForeignKey("Artist.SpotArtistID"), nullable=False),
         Column('Date', Date, nullable=False),
         Column('Popularity', Integer),
         Column('Followers', Integer),

@@ -15,28 +15,30 @@ import numpy as np
 import spotipy
 import os
 import time
+from datetime import datetime
+from sqlalchemy import MetaData, create_engine
 
 
-def get_weekly_chart_dates(self, year):
+def get_weekly_chart_dates(year):
     """Return a list of weekly chart dates for the given year
 
     Parameters
     ----------
-        year : str
+        year : int
 
     Returns
     -------
-        list[str]
+        list[datetime]
     """
     response = requests.get("http://www.billboard.com/archive/charts/{}/hot-100".format(year))
-    week_elements = bs4.BeautifulSoup(response.content, "html-parser").findAll("td")
+    week_elements = bs4.BeautifulSoup(response.content, "html.parser").findAll("td")
 
     # Example: <td><a href="/charts/hot-100/1959-02-16">February 16</a></td>,
-    date_list = [week.a.get('href')[8:18] for week in week_elements]
+    date_list = [datetime.strptime(week.a.get('href')[16:27], '%Y-%m-%d') for week in week_elements if week.find('a')]
     return date_list
 
 
-def get_weekly_chart(self, date):
+def get_weekly_charts(date):
     """Returns Billboard chart as a list of dictionaries.
 
     Dict Example: {
@@ -47,14 +49,14 @@ def get_weekly_chart(self, date):
 
     Parameters
     ----------
-        date : str
+        date : datetime
 
     Returns
     -------
         list[dict]
     """
 
-    url = "http://www.billboard.com/charts/hot-100/" + str(date)
+    url = "http://www.billboard.com/charts/hot-100/" + str(date.date())
     response = requests.get(url)
     html = response.content
     soup = bs4.BeautifulSoup(html, "html.parser")
@@ -85,7 +87,7 @@ def get_weekly_chart(self, date):
     return track_list
         
 
-def collect_all_lists(start_year, end_year, db):
+def scrape_billboard(start_year, end_year, db):
     """Insert all Hot 100 lists between provided years into target database
 
     Parameters
@@ -98,11 +100,19 @@ def collect_all_lists(start_year, end_year, db):
     -------
     None
     """
+    meta_data = MetaData(bind=db, reflect=True)
+    bb_position_table = meta_data.tables['BillBoardTrackPosition']
+
+    # iterate through years, inserting each
     for year in range(start_year, end_year + 1, 1):
         dates = get_weekly_chart_dates(year)
         for date in dates:
             print("Date: ", date)
-            weekly_chart = get_weekly_chart(date)
+            weekly_chart = get_weekly_charts(date)
+            for item in weekly_chart:
+                item.update({'ChartReleaseDate': date})
+            insert_curs = bb_position_table.insert()
+            insert_curs.execute(weekly_chart)
 
 
 def authorize_spotify():
@@ -197,31 +207,7 @@ def get_artist_info(file_name, spotipy_client=None):
     return cross_ref_df
 
 
-def scrape_playlists():
-    """
-    Takes a integer formatted year,
-    Scrapes all hot 100 playlists until that year
-    """
-
-    # Billboard Scrape
-    bb = BillBoardScraper()
-    bb.collect_all_lists(1958, 2018)
-    bb.track_df.to_csv('hot100_track_df.csv')
-
-    bb = BillBoardScraper()
-    print("initialized")
-    bb.track_df = pandas.read_csv('hot100_track_df.csv', encoding="ISO-8859-1")
-
-    # Spotify Query
-    sp = authorize_spotify()
-    bb.spot_ids = bb.dedup_spotify_ids()
-    bb.audio_features_df = get_audio_features(bb.spot_ids, sp)
-    bb.merge_dataframes()
-    bb.joined_df.to_csv('hot100_full_df.csv')
-
-
 if __name__ == "__main__":
     # scrape_playlists()
-    bb = BillBoardScraper()
-    track_list = bb.get_weekly_chart('1959-02-16')
-    print(track_list)
+    db = create_engine('sqlite:///hot100.sqlite')
+    scrape_billboard(1958, 2018, db)
