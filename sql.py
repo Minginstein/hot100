@@ -22,9 +22,10 @@ def create_db(db_engine, overwrite=False):
     """
     metadata = MetaData()
     artists = Table('Artist', metadata,
-        Column('ArtistID', String, primary_key=True),
+        Column('SpotArtistID', String),
         Column('OnSpotify', Boolean),
-        Column('Name', String),
+        Column('BillBoardName', String),
+        Column('SpotifyName', String),
         Column('Genres', String)
     )
 
@@ -36,19 +37,17 @@ def create_db(db_engine, overwrite=False):
         Column('MonthlyListeners', Integer)
     )
 
-    artist_bb_fact_table = Table('ArtistBillBoardFact', metadata,
-        Column('ArtistID', String, ForeignKey("Artist.ArtistID"), nullable=False),
+    billboard_position = Table('BillBoardTrackPosition', metadata,
         Column('ChartReleaseDate', Date, nullable=False),
-        Column('LastWeekPosition', Integer),
-        Column('CurrentPosition', Integer),
-        Column('PeakPosition', Integer),
-        Column('WeeksOnChart', Integer)
+        Column('Position', Integer),
+        Column('TrackName', Integer),
+        Column('ArtistName', Integer),
     )
 
     tracks = Table('Track', metadata,
         Column('TrackID', String, primary_key=True),
-        Column('ArtistID', String, ForeignKey("Artist.ArtistID"), nullable=False),
-        Column('Name', String),
+        Column('ArtistID', String, ForeignKey("Artist.SpotArtistID"), nullable=False),
+        Column('TrackName', String),
         Column('Acousticness', Float),
         Column('Danceability', Float),
         Column('Energy', Float),
@@ -58,7 +57,7 @@ def create_db(db_engine, overwrite=False):
         Column('Loudness', Float),
         Column('Mode', Integer),
         Column('Tempo', Integer),
-        Column('Time_signature', Integer),
+        Column('TimeSignature', Integer),
         Column('Valence', Integer),
         Column('Speechiness', Integer),
     )
@@ -71,6 +70,8 @@ def create_db(db_engine, overwrite=False):
 
     if db_engine.driver == 'pysqlite' and (overwrite or not os.path.exists('hot100.sqlite')):
         metadata.create_all(db_engine)
+    else:
+        raise(Exception, 'Target SQLite database exists')
 
 
 if __name__ == '__main__':
